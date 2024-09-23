@@ -73,9 +73,9 @@ const createChart = () => {
                     enabled: true,
                     mode: 'nearest',
                     intersect: false,
-                    backgroundColor: '#FFFFFF',
+                    backgroundColor: '#000000',
                     titleColor: '#000000',
-                    bodyColor: '#000000',
+                    bodyColor: '#FFFFFF',
                     borderColor: '#E5E7EB',
                     borderWidth: 1,
                     cornerRadius: 4,
@@ -94,12 +94,6 @@ const createChart = () => {
                             }
                             return label;
                         },
-                        labelColor: function () {
-                            return {
-                                borderColor: 'rgba(0, 0, 0, 0)',
-                                backgroundColor: 'rgba(0, 0, 0, 0)'
-                            };
-                        }
                     }
                 }
             },

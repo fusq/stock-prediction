@@ -1,22 +1,83 @@
 <template>
-    <div>
+    <div class="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+        <h1 class="text-5xl font-bold mb-4">Welcome to Our Application</h1>
+        <p class="text-lg text-gray-700 mb-8">This is a basic one-page layout that fits the screen with other
+            information.</p>
         <button v-if="!isChatOpen" @click="toggleChat"
             class="fixed bottom-8 right-8 bg-gray-800 text-white rounded-full p-5 hover:bg-gray-600 focus:outline-none flex items-center justify-center">
             <Icon name="heroicons:chat-bubble-oval-left-solid" class="w-8 h-8" />
         </button>
-        <div v-if="isChatOpen" class="bottom-8 right-8 fixed">
-            <Chat @close="toggleChat" />
-        </div>
+        <transition name="fade">
+            <div v-if="isChatOpen" class="fixed bottom-8 right-8">
+                <Chat @close="toggleChat" />
+            </div>
+        </transition>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, nextTick } from 'vue';
 import Chat from '@/components/Chat.vue';
 
 const isChatOpen = ref(false);
 
 const toggleChat = () => {
     isChatOpen.value = !isChatOpen.value;
+    if (isChatOpen.value) {
+        // Load messages from local storage when chat is opened
+        const savedMessages = localStorage.getItem('chatMessages');
+        if (savedMessages) {
+            messages.value = JSON.parse(savedMessages);
+        }
+        // Scroll to bottom when chat is opened
+        nextTick(() => {
+            scrollToBottom();
+        });
+    }
 };
 </script>
+
+<style scoped>
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.animate-fade-out {
+    animation: fadeOut 0.5s ease-out;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.5s, transform 0.5s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+    transform: translateY(5px);
+}
+</style>

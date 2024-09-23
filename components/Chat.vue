@@ -1,10 +1,11 @@
 <template>
     <div>
         <div
-            class="fixed md:relative inset-0 md:w-[500px] md:h-[800px] bg-white rounded-lg shadow-lg flex flex-col text-base md:text-sm border border-gray-200">
+            class="fixed md:relative inset-0 md:w-[500px] md:h-[800px] bg-white rounded-lg shadow-md flex flex-col text-base md:text-sm border border-gray-200">
             <!-- Chat Header -->
             <div class="flex items-center justify-between p-4 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-800">Chat</h2>
+                <h2 class="text-lg font-bold text-gray-800">Chat IA <span class="text-purple-700">Predictor</span>
+                </h2>
                 <button @click="$emit('close')" class="text-gray-600 hover:text-gray-800 flex items-center">
                     <Icon name="heroicons:x-mark" class="w-6 h-6" />
                 </button>
@@ -18,6 +19,11 @@
                         msg.blinking ? 'blinking' : ''
                     ]">
                         <span v-html="formatMessage(msg.content)"></span>
+                        <div v-if="msg.timestamp" class="text-gray-500 text-xs mt-1 text-right">{{ new
+                            Date(msg.timestamp).toLocaleString(undefined, {
+                                year: 'numeric', month: 'numeric', day: 'numeric',
+                                hour: '2-digit', minute: '2-digit'
+                            }) }}</div>
                     </div>
                 </div>
             </div>
@@ -68,9 +74,11 @@ const sendMessage = async () => {
     if (!userInput.value.trim()) return;
 
     const message = userInput.value;
+    const timestamp = new Date().toISOString(); // Format: YYYY-MM-DDTHH:mm:ss.sssZ
+
     userInput.value = ''; // Clear the input immediately after getting the message
 
-    messages.value.push({ role: 'user', content: message });
+    messages.value.push({ role: 'user', content: message, timestamp: timestamp });
 
     try {
         const response = await $fetch('/api/chat', {
@@ -79,12 +87,12 @@ const sendMessage = async () => {
         });
 
         if (response.reply.trim()) {
-            messages.value.push({ role: 'assistant', content: response.reply });
+            messages.value.push({ role: 'assistant', content: response.reply, timestamp: timestamp });
         }
 
         if (response.needsPrediction) {
             if (response.stockSymbol) {
-                const loadingMessage = { role: 'assistant', content: `Prédiction de la tendance de ${response.stockSymbol}...`, blinking: true };
+                const loadingMessage = { role: 'assistant', content: `Prédiction de la tendance de ${response.stockSymbol}...`, blinking: true, timestamp: null };
                 messages.value.push(loadingMessage);
 
                 await new Promise(resolve => setTimeout(resolve, 2000)); // Adding a delay of 2 seconds
@@ -104,16 +112,16 @@ const sendMessage = async () => {
                     chartType.value = 'stock';
                     showChart.value = true;
 
-                    messages.value.push({ role: 'assistant', content: `J'ai créé un graphique montrant les données historiques et la prédiction pour ${predictionResponse.symbol}. Vous pouvez le voir ci-dessous.` });
+                    messages.value.push({ role: 'assistant', content: `J'ai créé un graphique montrant les données historiques et la prédiction pour ${predictionResponse.symbol}. Vous pouvez le voir ci-dessous.`, timestamp: timestamp });
 
                     const tendencyMessage = `Tendance prédite: **${predictionResponse.prediction.tendency[0] === 1 ? 'À la hausse' : 'À la baisse'}**`;
-                    messages.value.push({ role: 'assistant', content: tendencyMessage });
+                    messages.value.push({ role: 'assistant', content: tendencyMessage, timestamp: timestamp });
                 } catch (error) {
                     loadingMessage.blinking = false;
-                    messages.value.push({ role: 'assistant', content: `Erreur lors de la récupération des données boursières: ${error.message}` });
+                    messages.value.push({ role: 'assistant', content: `Erreur lors de la récupération des données boursières: ${error.message}`, timestamp: new Date().toLocaleString() });
                 }
             } else if (response.baseCurrency && response.targetCurrency) {
-                const loadingMessage = { role: 'assistant', content: `Récupération des données de change pour ${response.baseCurrency}/${response.targetCurrency}...`, blinking: true };
+                const loadingMessage = { role: 'assistant', content: `Récupération des données de change pour ${response.baseCurrency}/${response.targetCurrency}...`, blinking: true, timestamp: timestamp };
                 messages.value.push(loadingMessage);
 
                 try {
@@ -132,19 +140,19 @@ const sendMessage = async () => {
                     chartType.value = 'currency';
                     showChart.value = true;
 
-                    messages.value.push({ role: 'assistant', content: `J'ai créé un graphique montrant les données historiques et la prédiction pour ${predictionResponse.baseCurrency}/${predictionResponse.targetCurrency}. Vous pouvez le voir ci-dessous.` });
+                    messages.value.push({ role: 'assistant', content: `J'ai créé un graphique montrant les données historiques et la prédiction pour ${predictionResponse.baseCurrency}/${predictionResponse.targetCurrency}. Vous pouvez le voir ci-dessous.`, timestamp: new Date().toLocaleString() });
 
                     const tendencyMessage = `Tendance prédite: **${predictionResponse.prediction.tendency[0] === 1 ? 'À la hausse' : 'À la baisse'}**`;
-                    messages.value.push({ role: 'assistant', content: tendencyMessage });
+                    messages.value.push({ role: 'assistant', content: tendencyMessage, timestamp: timestamp });
                 } catch (error) {
                     loadingMessage.blinking = false;
-                    messages.value.push({ role: 'assistant', content: `Erreur lors de la récupération des données de change: ${error.message}` });
+                    messages.value.push({ role: 'assistant', content: `Erreur lors de la récupération des données de change: ${error.message}`, timestamp: timestamp });
                 }
             }
         }
     } catch (error) {
         console.error('Error sending message:', error);
-        messages.value.push({ role: 'assistant', content: 'Sorry, there was an error processing your request.' });
+        messages.value.push({ role: 'assistant', content: 'Sorry, there was an error processing your request.', timestamp: timestamp });
     }
 };
 
@@ -156,11 +164,11 @@ const scrollToBottom = () => {
 
 const messagesContainer = ref(null);
 
-watch(messages, () => {
-    nextTick(() => {
-        scrollToBottom();
-    });
-}, { deep: true });
+const saveMessagesToLocalStorage = () => {
+    localStorage.setItem('chatMessages', JSON.stringify(messages.value));
+};
+
+watch(messages, saveMessagesToLocalStorage, { deep: true });
 
 watch(showChart, () => {
     nextTick(() => {
@@ -169,12 +177,19 @@ watch(showChart, () => {
 });
 
 onMounted(() => {
+    const savedMessages = localStorage.getItem('chatMessages');
+    if (savedMessages) {
+        messages.value = JSON.parse(savedMessages);
+    }
     scrollToBottom();
 });
 
-const toggleChat = () => {
-    isChatOpen.value = !isChatOpen.value;
-};
+watch(messages, () => {
+    nextTick(() => {
+        scrollToBottom();
+    });
+}, { deep: true });
+
 </script>
 
 <style scoped>
@@ -194,5 +209,21 @@ const toggleChat = () => {
     100% {
         opacity: 1;
     }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+}
+
+.animate-fade-out {
+    animation: fadeOut 0.5s ease-out;
 }
 </style>
