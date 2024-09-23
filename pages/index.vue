@@ -4,6 +4,12 @@
         <p class="text-lg text-gray-700 mb-8 text-center">This is a basic one-page layout that fits the screen with
             other
             information.</p>
+        <!-- New Clear Local Storage Button -->
+        <button @click="clearLocalStorage"
+            class="bg-purple-500 text-white text-xs rounded-full py-4 px-4 mb-8 hover:bg-purple-700 focus:outline-none flex items-center justify-center">
+            {{ buttonText }}
+            <Icon name="heroicons:trash-solid" class="w-4 h-4 ml-2" />
+        </button>
         <button v-if="!isChatOpen" @click="toggleChat"
             class="fixed sm:bottom-8 sm:right-8 bottom-4 right-4 bg-gray-800 text-white rounded-full p-5 hover:bg-gray-600 focus:outline-none flex items-center justify-center">
             <Icon name="heroicons:chat-bubble-oval-left-solid" class="w-8 h-8" />
@@ -19,8 +25,13 @@
 <script setup>
 import { ref, nextTick } from 'vue';
 import Chat from '@/components/Chat.vue';
-const messages = ref([]);
 
+useHead({
+    title: 'AI Predictor',
+});
+
+const messages = ref([]);
+const buttonText = ref('Clear History (For testing purposes)');
 const isChatOpen = ref(false);
 
 const toggleChat = () => {
@@ -36,6 +47,17 @@ const toggleChat = () => {
             scrollToBottom();
         });
     }
+};
+
+// New function to clear local storage and show success message
+const clearLocalStorage = () => {
+    localStorage.clear();
+    messages.value = [];
+    buttonText.value = 'Success!';
+    location.reload();
+    setTimeout(() => {
+        buttonText.value = 'Clear History (For testing purposes)';
+    }, 1500); // Reset message after 3 seconds
 };
 </script>
 

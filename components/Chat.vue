@@ -84,6 +84,7 @@ const sendMessage = async () => {
         // Show blinking message while waiting for AI response
         const loadingMessage = { role: 'assistant', content: '...', blinking: true, timestamp: null };
         messages.value.push(loadingMessage);
+        const loadingIndex = messages.value.length - 1;
 
         const response = await $fetch('/api/chat', {
             method: 'POST',
@@ -101,8 +102,9 @@ const sendMessage = async () => {
             if (response.stockSymbol) {
                 const loadingMessage = { role: 'assistant', content: `Prédiction de la tendance de ${response.stockSymbol}...`, blinking: true, timestamp: null };
                 messages.value.push(loadingMessage);
+                const predictionLoadingIndex = messages.value.length - 1;
 
-                await new Promise(resolve => setTimeout(resolve, 2000)); // Adding a delay of 2 seconds
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Adding a delay of 2 seconds
 
                 try {
                     const predictionResponse = await $fetch('/api/predict', {
@@ -110,8 +112,8 @@ const sendMessage = async () => {
                         params: { symbol: response.stockSymbol }
                     });
 
-                    // Remove blinking effect after data is fetched
-                    loadingMessage.blinking = false;
+                    // Remove the loading message
+                    messages.value.splice(predictionLoadingIndex, 1);
 
                     historicalData.value = predictionResponse.prices;
                     predictedData.value = predictionResponse.prediction.values;
@@ -124,12 +126,16 @@ const sendMessage = async () => {
                     const tendencyMessage = `Tendance prédite: **${predictionResponse.prediction.tendency[0] === 1 ? 'À la hausse' : 'À la baisse'}**`;
                     messages.value.push({ role: 'assistant', content: tendencyMessage, timestamp: timestamp });
                 } catch (error) {
-                    loadingMessage.blinking = false;
+                    // Remove the loading message
+                    messages.value.splice(predictionLoadingIndex, 1);
                     messages.value.push({ role: 'assistant', content: `Erreur lors de la récupération des données boursières: ${error.message}`, timestamp: new Date().toLocaleString() });
                 }
             } else if (response.baseCurrency && response.targetCurrency) {
                 const loadingMessage = { role: 'assistant', content: `Récupération des données de change pour ${response.baseCurrency}/${response.targetCurrency}...`, blinking: true, timestamp: null };
                 messages.value.push(loadingMessage);
+                const currencyLoadingIndex = messages.value.length - 1;
+
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Adding a delay of 2 seconds
 
                 try {
                     const predictionResponse = await $fetch('/api/predictCurrency', {
@@ -137,8 +143,8 @@ const sendMessage = async () => {
                         params: { baseCurrency: response.baseCurrency, targetCurrency: response.targetCurrency }
                     });
 
-                    // Remove blinking effect after data is fetched
-                    loadingMessage.blinking = false;
+                    // Remove the loading message
+                    messages.value.splice(currencyLoadingIndex, 1);
 
                     historicalData.value = predictionResponse.rates;
                     predictedData.value = predictionResponse.prediction.values;
@@ -152,7 +158,8 @@ const sendMessage = async () => {
                     const tendencyMessage = `Tendance prédite: **${predictionResponse.prediction.tendency[0] === 1 ? 'À la hausse' : 'À la baisse'}**`;
                     messages.value.push({ role: 'assistant', content: tendencyMessage, timestamp: timestamp });
                 } catch (error) {
-                    loadingMessage.blinking = false;
+                    // Remove the loading message
+                    messages.value.splice(currencyLoadingIndex, 1);
                     messages.value.push({ role: 'assistant', content: `Erreur lors de la récupération des données de change: ${error.message}`, timestamp: timestamp });
                 }
             }
