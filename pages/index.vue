@@ -1,9 +1,11 @@
 <template>
     <div class="min-h-screen flex flex-col bg-gray-100 relative">
         <div class="absolute top-4 left-4 sm:top-8 sm:left-8 flex items-center">
-            <img src="/logo.svg" alt="Sibyllium" class="w-7 mr-4">
-            <span class="text-lg font-extralight"
-                style="font-family: 'Questrial', sans-serif; letter-spacing: 0.3em; font-weight: 100;">Sibyllium</span>
+            <div class="flex items-center">
+                <img src="/logo.svg" alt="Sibyllium" class="w-7 mr-4">
+                <span class="text-base font-extralight"
+                    style="font-family: 'Questrial', sans-serif; letter-spacing: 0.3em; font-weight: 100;">Sibyllium</span>
+            </div>
         </div>
         <div class="flex-grow flex flex-col items-center justify-center">
             <h1 class="text-5xl font-bold mb-4 text-center">Predict Financial Markets with AI</h1>
