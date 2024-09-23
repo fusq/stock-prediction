@@ -1,11 +1,11 @@
 <template>
     <div>
         <div
-            class="fixed md:relative inset-0 md:w-[500px] md:h-[800px] bg-white rounded-lg shadow-md flex flex-col text-base md:text-sm border border-gray-200">
+            class="fixed md:relative inset-0 md:w-[500px] md:h-[800px] bg-white rounded-lg shadow-md flex flex-col text-base md:text-sm">
             <!-- Chat Header -->
-            <div class="flex items-center justify-between p-4 border-b bg-gray-900 text-white rounded-t-lg">
+            <div class="flex items-center justify-between p-4 bg-gray-900 text-white sm:rounded-t-lg">
                 <h2 class="text-lg font-bold">Chat IA <span class="text-[#f4d659] ml-1 text-base font-extralight"
-                        style="letter-spacing: 0.2em;">Sibyllium</span>
+                        style="letter-spacing: 0.2em;">Sibyl</span>
                 </h2>
                 <button @click="$emit('close')" class="text-white hover:text-gray-400 flex items-center">
                     <Icon name="heroicons:x-mark" class="w-6 h-6" />
@@ -28,14 +28,16 @@
                     </div>
                 </div>
             </div>
-            <div v-if="showChart" class="h-[300px] p-4 relative">
-                <button @click="showChart = false" class="absolute top-6 right-6 text-gray-600 hover:text-gray-800">
-                    <Icon name="heroicons:x-mark" class="w-4 h-4 text-gray-600 hover:text-gray-800" />
-                </button>
-                <PredictionChart :historicalData="historicalData" :predictedData="predictedData"
-                    :primaryLabel="chartType === 'stock' ? currentSymbol : baseCurrency"
-                    :secondaryLabel="chartType === 'currency' ? targetCurrency : ''" :chartType="chartType" />
-            </div>
+            <transition name="fade">
+                <div v-if="showChart" class="h-[300px] p-4 relative">
+                    <button @click="showChart = false" class="absolute top-6 right-6 text-gray-600 hover:text-gray-800">
+                        <Icon name="heroicons:x-mark" class="w-4 h-4 text-white hover:text-gray-400" />
+                    </button>
+                    <PredictionChart :historicalData="historicalData" :predictedData="predictedData"
+                        :primaryLabel="chartType === 'stock' ? currentSymbol : baseCurrency"
+                        :secondaryLabel="chartType === 'currency' ? targetCurrency : ''" :chartType="chartType" />
+                </div>
+            </transition>
             <div class="border-t rounded-b-lg bg-white p-4">
                 <div class="flex space-x-2">
                     <input v-model="userInput" @keyup.enter="sendMessage"
@@ -226,10 +228,22 @@ watch(messages, () => {
     }
 }
 
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 @keyframes fadeOut {
     from {
         opacity: 1;
-        transform: translateY(0px);
+        transform: translateY(0);
     }
 
     to {
@@ -238,7 +252,14 @@ watch(messages, () => {
     }
 }
 
-.animate-fade-out {
-    animation: fadeOut 0.5s ease-out;
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.5s, transform 0.5s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+    transform: translateY(5px);
 }
 </style>

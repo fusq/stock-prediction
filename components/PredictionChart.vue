@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full h-64 border border-gray-300 rounded-md shadow p-4">
+    <div class="w-full h-64 border border-gray-300 rounded-md shadow p-4 bg-gray-900">
         <canvas ref="chartCanvas"></canvas>
     </div>
 </template>
@@ -41,14 +41,14 @@ const createChart = () => {
                 {
                     label: 'Historical',
                     data: last40Days,
-                    borderColor: '#374151',
+                    borderColor: 'white',
                     fill: false,
                     pointRadius: 0
                 },
                 {
                     label: 'Predicted',
                     data: [...Array(39).fill(null), ...combinedPredictedData],
-                    borderColor: '#EF4444',
+                    borderColor: 'rgb(244,214,89)',
                     borderDash: [5, 5],
                     fill: false,
                     pointRadius: 0
@@ -67,7 +67,8 @@ const createChart = () => {
                     text: getChartTitle(),
                     font: {
                         size: 14 // Adjusted the font size to make the title smaller
-                    }
+                    },
+                    color: 'white' // Changed the title color to white
                 },
                 tooltip: {
                     enabled: true,
@@ -104,10 +105,11 @@ const createChart = () => {
                     },
                     ticks: {
                         display: true,
-                        maxTicksLimit: 15 // Adjust this value to control the number of ticks
+                        maxTicksLimit: 15, // Adjust this value to control the number of ticks
+                        color: 'white' // Changed the x-axis labels to white
                     },
                     grid: {
-                        color: '#f3f4f6'
+                        color: 'rgba(75, 85, 99, 0.5)' // Changed
                     }
                 },
                 y: {
@@ -116,10 +118,11 @@ const createChart = () => {
                     },
                     ticks: {
                         display: true,
-                        maxTicksLimit: 7 // Adjust this value to control the number of ticks
+                        maxTicksLimit: 7, // Adjust this value to control the number of ticks
+                        color: 'white' // Changed the y-axis labels to white
                     },
                     grid: {
-                        color: '#f3f4f6'
+                        color: 'rgba(75, 85, 99, 0.5)' // Changedo gray
                     }
                 },
             }
