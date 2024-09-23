@@ -66,7 +66,40 @@ const createChart = () => {
                     display: true,
                     text: getChartTitle(),
                     font: {
-                        size: 16
+                        size: 14 // Adjusted the font size to make the title smaller
+                    }
+                },
+                tooltip: {
+                    enabled: true,
+                    mode: 'nearest',
+                    intersect: false,
+                    backgroundColor: '#FFFFFF',
+                    titleColor: '#000000',
+                    bodyColor: '#000000',
+                    borderColor: '#E5E7EB',
+                    borderWidth: 1,
+                    cornerRadius: 4,
+                    shadowOffsetX: 0,
+                    shadowOffsetY: 2,
+                    shadowBlur: 4,
+                    shadowColor: 'rgba(0, 0, 0, 0.1)',
+                    callbacks: {
+                        title: function () {
+                            return ''; // Return an empty string to hide the title
+                        },
+                        label: function (context) {
+                            let label = '';
+                            if (context.parsed.y !== null) {
+                                label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
+                            }
+                            return label;
+                        },
+                        labelColor: function () {
+                            return {
+                                borderColor: 'rgba(0, 0, 0, 0)',
+                                backgroundColor: 'rgba(0, 0, 0, 0)'
+                            };
+                        }
                     }
                 }
             },
@@ -76,20 +109,25 @@ const createChart = () => {
                         display: false
                     },
                     ticks: {
-                        display: false
+                        display: true,
+                        maxTicksLimit: 15 // Adjust this value to control the number of ticks
                     },
                     grid: {
-                        display: false
+                        color: '#f3f4f6'
                     }
                 },
                 y: {
                     title: {
                         display: false
                     },
+                    ticks: {
+                        display: true,
+                        maxTicksLimit: 7 // Adjust this value to control the number of ticks
+                    },
                     grid: {
-                        display: false
+                        color: '#f3f4f6'
                     }
-                }
+                },
             }
         }
     });

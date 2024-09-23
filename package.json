@@ -10,10 +10,20 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@unovis/ts": "^1.4.3-beta.0",
+    "@unovis/vue": "^1.4.3-beta.0",
+    "@vueuse/core": "^11.1.0",
     "axios": "^1.7.7",
     "chart.js": "^4.4.4",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "lucide-vue-next": "^0.445.0",
     "nuxt": "^3.13.0",
     "openai": "^4.63.0",
+    "radix-vue": "^1.9.6",
+    "recharts": "^2.12.7",
+    "tailwind-merge": "^2.5.2",
+    "tailwindcss-animate": "^1.0.7",
     "vue": "latest",
     "vue-router": "latest"
   },

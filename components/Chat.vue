@@ -1,0 +1,198 @@
+<template>
+    <div>
+        <div
+            class="w-[500px] h-[800px] bg-white rounded-lg shadow-lg flex flex-col text-base md:text-sm border border-gray-200">
+            <!-- Chat Header -->
+            <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-800">Chat</h2>
+                <button @click="$emit('close')" class="text-gray-600 hover:text-gray-800 flex items-center">
+                    <Icon name="heroicons:x-mark" class="w-6 h-6" />
+                </button>
+            </div>
+            <div class="flex-grow overflow-y-auto p-4 space-y-4" ref="messagesContainer">
+                <div v-for="(msg, index) in messages" :key="index"
+                    :class="msg.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
+                    <div :class="[
+                        'max-w-xs rounded-lg p-3',
+                        msg.role === 'user' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-800',
+                        msg.blinking ? 'blinking' : ''
+                    ]">
+                        <span v-html="formatMessage(msg.content)"></span>
+                    </div>
+                </div>
+            </div>
+            <div v-if="showChart" class="h-[300px] p-4 relative">
+                <button @click="showChart = false" class="absolute top-6 right-6 text-gray-600 hover:text-gray-800">
+                    <Icon name="heroicons:x-mark" class="w-4 h-4 text-gray-600 hover:text-gray-800" />
+                </button>
+                <PredictionChart :historicalData="historicalData" :predictedData="predictedData"
+                    :primaryLabel="chartType === 'stock' ? currentSymbol : baseCurrency"
+                    :secondaryLabel="chartType === 'currency' ? targetCurrency : ''" :chartType="chartType" />
+            </div>
+            <div class="border-t rounded-b-lg bg-white p-4">
+                <div class="flex space-x-2">
+                    <input v-model="userInput" @keyup.enter="sendMessage"
+                        class="flex-1 border rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-800"
+                        placeholder="Type your message...">
+                    <button @click="sendMessage"
+                        class="bg-gray-800 text-white rounded-full px-4 py-2 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-800">
+                        <Icon name="heroicons:paper-airplane-solid" class="w-4 h-4 block" />
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script setup>
+import { ref, watch, nextTick, onMounted } from 'vue';
+import PredictionChart from '@/components/PredictionChart.vue';
+
+const messages = ref([]);
+const userInput = ref('');
+const showChart = ref(false);
+const historicalData = ref([]);
+const predictedData = ref([]);
+const currentSymbol = ref('');
+const chartType = ref('');
+const baseCurrency = ref('');
+const targetCurrency = ref('');
+const isChatOpen = ref(false);
+
+const formatMessage = (content) => {
+    return content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+};
+
+const sendMessage = async () => {
+    if (!userInput.value.trim()) return;
+
+    const message = userInput.value;
+    userInput.value = ''; // Clear the input immediately after getting the message
+
+    messages.value.push({ role: 'user', content: message });
+
+    try {
+        const response = await $fetch('/api/chat', {
+            method: 'POST',
+            body: { message: message, history: messages.value }
+        });
+
+        if (response.reply.trim()) {
+            messages.value.push({ role: 'assistant', content: response.reply });
+        }
+
+        if (response.needsPrediction) {
+            if (response.stockSymbol) {
+                const loadingMessage = { role: 'assistant', content: `Prédiction de la tendance de ${response.stockSymbol}...`, blinking: true };
+                messages.value.push(loadingMessage);
+
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Adding a delay of 2 seconds
+
+                try {
+                    const predictionResponse = await $fetch('/api/predict', {
+                        method: 'GET',
+                        params: { symbol: response.stockSymbol }
+                    });
+
+                    // Remove blinking effect after data is fetched
+                    loadingMessage.blinking = false;
+
+                    historicalData.value = predictionResponse.prices;
+                    predictedData.value = predictionResponse.prediction.values;
+                    currentSymbol.value = predictionResponse.symbol;
+                    chartType.value = 'stock';
+                    showChart.value = true;
+
+                    messages.value.push({ role: 'assistant', content: `J'ai créé un graphique montrant les données historiques et la prédiction pour ${predictionResponse.symbol}. Vous pouvez le voir ci-dessous.` });
+
+                    const tendencyMessage = `Tendance prédite: **${predictionResponse.prediction.tendency[0] === 1 ? 'À la hausse' : 'À la baisse'}**`;
+                    messages.value.push({ role: 'assistant', content: tendencyMessage });
+                } catch (error) {
+                    loadingMessage.blinking = false;
+                    messages.value.push({ role: 'assistant', content: `Erreur lors de la récupération des données boursières: ${error.message}` });
+                }
+            } else if (response.baseCurrency && response.targetCurrency) {
+                const loadingMessage = { role: 'assistant', content: `Récupération des données de change pour ${response.baseCurrency}/${response.targetCurrency}...`, blinking: true };
+                messages.value.push(loadingMessage);
+
+                try {
+                    const predictionResponse = await $fetch('/api/predictCurrency', {
+                        method: 'GET',
+                        params: { baseCurrency: response.baseCurrency, targetCurrency: response.targetCurrency }
+                    });
+
+                    // Remove blinking effect after data is fetched
+                    loadingMessage.blinking = false;
+
+                    historicalData.value = predictionResponse.rates;
+                    predictedData.value = predictionResponse.prediction.values;
+                    baseCurrency.value = predictionResponse.baseCurrency;
+                    targetCurrency.value = predictionResponse.targetCurrency;
+                    chartType.value = 'currency';
+                    showChart.value = true;
+
+                    messages.value.push({ role: 'assistant', content: `J'ai créé un graphique montrant les données historiques et la prédiction pour ${predictionResponse.baseCurrency}/${predictionResponse.targetCurrency}. Vous pouvez le voir ci-dessous.` });
+
+                    const tendencyMessage = `Tendance prédite: **${predictionResponse.prediction.tendency[0] === 1 ? 'À la hausse' : 'À la baisse'}**`;
+                    messages.value.push({ role: 'assistant', content: tendencyMessage });
+                } catch (error) {
+                    loadingMessage.blinking = false;
+                    messages.value.push({ role: 'assistant', content: `Erreur lors de la récupération des données de change: ${error.message}` });
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error sending message:', error);
+        messages.value.push({ role: 'assistant', content: 'Sorry, there was an error processing your request.' });
+    }
+};
+
+const scrollToBottom = () => {
+    if (messagesContainer.value) {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+    }
+};
+
+const messagesContainer = ref(null);
+
+watch(messages, () => {
+    nextTick(() => {
+        scrollToBottom();
+    });
+}, { deep: true });
+
+watch(showChart, () => {
+    nextTick(() => {
+        scrollToBottom();
+    });
+});
+
+onMounted(() => {
+    scrollToBottom();
+});
+
+const toggleChat = () => {
+    isChatOpen.value = !isChatOpen.value;
+};
+</script>
+
+<style scoped>
+.blinking {
+    animation: blinking 2s infinite;
+}
+
+@keyframes blinking {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.2;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+</style>
