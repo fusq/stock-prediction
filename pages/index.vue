@@ -15,7 +15,7 @@
             <button @click="clearLocalStorage"
                 class="bg-[rgb(244,214,89)] text-gray-900 text-xs rounded-full py-4 px-4 mb-8 hover:bg-yellow-500 focus:outline-none flex items-center justify-center">
                 {{ buttonText }}
-                <Icon name="heroicons:trash-solid" class="w-4 h-4 ml-2" />
+                <Icon :name="buttonIcon" class="w-4 h-4 ml-2" />
             </button>
             <button v-if="!isChatOpen" @click="toggleChat"
                 class="fixed sm:bottom-8 sm:right-8 bottom-4 right-4 bg-[rgb(244,214,89,1)]  text-gray-900 rounded-full p-5 hover:bg-yellow-500 focus:outline-none flex items-center justify-center">
@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue';
+import { ref, nextTick, computed } from 'vue';
 import Chat from '@/components/Chat.vue';
 
 useHead({
@@ -41,6 +41,11 @@ useHead({
 const messages = ref([]);
 const buttonText = ref('Clear History (For testing purposes)');
 const isChatOpen = ref(false);
+
+// Computed property to determine the icon based on button text
+const buttonIcon = computed(() => {
+    return buttonText.value === 'Success!' ? 'heroicons:check' : 'heroicons:trash-solid';
+});
 
 const toggleChat = () => {
     isChatOpen.value = !isChatOpen.value;
@@ -65,7 +70,7 @@ const clearLocalStorage = () => {
     location.reload();
     setTimeout(() => {
         buttonText.value = 'Clear History (For testing purposes)';
-    }, 1500); // Reset message after 3 seconds
+    }, 1500); // Reset message after 1.5 seconds
 };
 </script>
 
