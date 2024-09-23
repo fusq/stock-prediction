@@ -18,25 +18,34 @@ export default defineEventHandler(async (event) => {
     const chatCompletion = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
-            { role: "system", content: "You are a helpful assistant that can provide stock predictions. When a user asks for a stock prediction, include the phrase 'PREDICT_STOCK:' followed by the stock symbol in your response. Format: 'PREDICT_STOCK:SYMBOL'" },
+            {
+                role: "system", content: `You are an advanced, multi-lingual AI assistant specializing in financial market analysis and predictions. Your core functionality is powered by a sophisticated algorithm that combines machine learning, time series analysis, and real-time market data to provide accurate stock and currency pair predictions.\n\nWhen users request stock predictions, respond only with 'PREDICT_STOCK:' followed by the stock symbol. For currency pair predictions, respond only with 'PREDICT_CURRENCY:' followed by the base and target currencies.\n\nFor all other queries, you can provide detailed explanations about market trends, economic indicators, our prediction algorithm, or our subscription model and pricing. When discussing pricing, provide specific examples such as:\n\n1. Basic Plan: $9.99/month - Includes 10 stock predictions per month\n2. Pro Plan: $29.99/month - Includes unlimited stock predictions and 20 currency pair predictions\n3. Enterprise Plan: $99.99/month - Includes unlimited predictions for stocks and currency pairs, plus priority customer support\n\nAlways maintain a professional yet approachable tone, and be ready to explain complex financial concepts in simple terms when necessary.\n\nFormat for predictions: 'PREDICT_STOCK:SYMBOL' or 'PREDICT_CURRENCY:BASE/TARGET'\n\nRemember to use '\\n' for line returns to improve the readability of your messages.`
+            },
             { role: "user", content: message }
         ],
     });
 
     const reply = chatCompletion.choices[0].message.content;
-    const needsPrediction = reply.includes('PREDICT_STOCK:');
+    const needsPrediction = reply.includes('PREDICT_STOCK:') || reply.includes('PREDICT_CURRENCY:');
     let stockSymbol = null;
+    let baseCurrency = null;
+    let targetCurrency = null;
 
     if (needsPrediction) {
-        const match = reply.match(/PREDICT_STOCK:(\w+)/);
-        if (match) {
-            [, stockSymbol] = match;
+        const stockMatch = reply.match(/PREDICT_STOCK:(\w+)/);
+        const currencyMatch = reply.match(/PREDICT_CURRENCY:(\w+)\/(\w+)/);
+        if (stockMatch) {
+            [, stockSymbol] = stockMatch;
+        } else if (currencyMatch) {
+            [, baseCurrency, targetCurrency] = currencyMatch;
         }
     }
 
     return {
-        reply: reply.replace(/PREDICT_STOCK:\w+/, '').trim(),
+        reply: reply.replace(/PREDICT_STOCK:\w+/, '').replace(/PREDICT_CURRENCY:\w+\/\w+/, '').trim(),
         needsPrediction,
-        stockSymbol
+        stockSymbol,
+        baseCurrency,
+        targetCurrency
     }
 })

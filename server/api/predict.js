@@ -1,21 +1,14 @@
-import { spawn } from 'child_process';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
 import axios from 'axios';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const pythonScriptPath = join(__dirname, '..', '..', 'server', 'api', 'stock_predictor.py');
-
 export default defineEventHandler(async (event) => {
-    const query = getQuery(event)
-    const symbol = query.symbol
+    const query = getQuery(event);
+    const symbol = query.symbol;
 
     if (!symbol) {
         throw createError({
             statusCode: 400,
             statusMessage: 'Symbol is required',
-        })
+        });
     }
 
     try {
@@ -30,37 +23,20 @@ export default defineEventHandler(async (event) => {
 
         const stockData = response.data.data.map(item => item.close).reverse();
 
-        // Call the Python script with the stock data
-        const pythonProcess = spawn('python', [pythonScriptPath]);
-
-        pythonProcess.stdin.write(JSON.stringify(stockData));
-        pythonProcess.stdin.end();
-
-        let prediction = '';
-        let errorOutput = '';
-
-        pythonProcess.stdout.on('data', (data) => {
-            prediction += data.toString();
+        // Call the Flask API with the stock data
+        const flaskResponse = await axios.post('https://pythonscripttradeprediction-pajd.vercel.app/predict', {
+            serie: stockData,
+            horizon: 10,
+            output: 'TcopilValues'
         });
 
-        pythonProcess.stderr.on('data', (data) => {
-            errorOutput += data.toString();
-        });
+        const prediction = flaskResponse.data;
 
-        return new Promise((resolve, reject) => {
-            pythonProcess.on('close', (code) => {
-                if (code === 0) {
-                    resolve({
-                        symbol: symbol,
-                        prices: stockData,
-                        prediction: JSON.parse(prediction)
-                    });
-                } else {
-                    console.error('Python script error output:', errorOutput);
-                    reject(new Error(`Python script exited with code ${code}. Error: ${errorOutput}`));
-                }
-            });
-        });
+        return {
+            symbol: symbol,
+            prices: stockData,
+            prediction: prediction
+        };
     } catch (error) {
         console.error('Error fetching stock data:', error);
         throw createError({
@@ -68,4 +44,4 @@ export default defineEventHandler(async (event) => {
             statusMessage: 'Error fetching stock data',
         });
     }
-})
+});
