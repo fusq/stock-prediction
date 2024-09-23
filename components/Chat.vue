@@ -81,10 +81,17 @@ const sendMessage = async () => {
     messages.value.push({ role: 'user', content: message, timestamp: timestamp });
 
     try {
+        // Show blinking message while waiting for AI response
+        const loadingMessage = { role: 'assistant', content: '...', blinking: true, timestamp: null };
+        messages.value.push(loadingMessage);
+
         const response = await $fetch('/api/chat', {
             method: 'POST',
             body: { message: message, history: messages.value }
         });
+
+        // Remove the loading message
+        messages.value.pop();
 
         if (response.reply.trim()) {
             messages.value.push({ role: 'assistant', content: response.reply, timestamp: timestamp });
@@ -121,7 +128,7 @@ const sendMessage = async () => {
                     messages.value.push({ role: 'assistant', content: `Erreur lors de la récupération des données boursières: ${error.message}`, timestamp: new Date().toLocaleString() });
                 }
             } else if (response.baseCurrency && response.targetCurrency) {
-                const loadingMessage = { role: 'assistant', content: `Récupération des données de change pour ${response.baseCurrency}/${response.targetCurrency}...`, blinking: true, timestamp: timestamp };
+                const loadingMessage = { role: 'assistant', content: `Récupération des données de change pour ${response.baseCurrency}/${response.targetCurrency}...`, blinking: true, timestamp: null };
                 messages.value.push(loadingMessage);
 
                 try {

@@ -1,10 +1,11 @@
 <template>
     <div class="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-        <h1 class="text-5xl font-bold mb-4">Welcome to Our Application</h1>
-        <p class="text-lg text-gray-700 mb-8">This is a basic one-page layout that fits the screen with other
+        <h1 class="text-5xl font-bold mb-4 text-center">Welcome to Our Application</h1>
+        <p class="text-lg text-gray-700 mb-8 text-center">This is a basic one-page layout that fits the screen with
+            other
             information.</p>
         <button v-if="!isChatOpen" @click="toggleChat"
-            class="fixed bottom-8 right-8 bg-gray-800 text-white rounded-full p-5 hover:bg-gray-600 focus:outline-none flex items-center justify-center">
+            class="fixed sm:bottom-8 sm:right-8 bottom-4 right-4 bg-gray-800 text-white rounded-full p-5 hover:bg-gray-600 focus:outline-none flex items-center justify-center">
             <Icon name="heroicons:chat-bubble-oval-left-solid" class="w-8 h-8" />
         </button>
         <transition name="fade">
@@ -18,6 +19,7 @@
 <script setup>
 import { ref, nextTick } from 'vue';
 import Chat from '@/components/Chat.vue';
+const messages = ref([]);
 
 const isChatOpen = ref(false);
 
