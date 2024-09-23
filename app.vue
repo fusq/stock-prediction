@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col h-screen bg-gray-100 justify-center items-center text-sm">
+    <div class="flex flex-col h-screen bg-gray-100 justify-center items-center text-base md:text-sm">
         <div class="w-full h-full md:max-w-2xl md:h-[800px] bg-white rounded-lg shadow-sm flex flex-col">
             <div class="flex-grow overflow-y-auto p-4 space-y-4" ref="messagesContainer">
                 <div v-for="(msg, index) in messages" :key="index"
