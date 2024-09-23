@@ -1,23 +1,30 @@
 <template>
-    <div class="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-        <h1 class="text-5xl font-bold mb-4 text-center">Predict Financial Markets with AI</h1>
-        <p class="text-base text-gray-500 font-light mb-8 text-center max-w-lg">Leverage advanced AI technology to
-            forecast stock prices and currency exchange rates with unparalleled accuracy.</p>
-        <!-- New Clear Local Storage Button -->
-        <button @click="clearLocalStorage"
-            class="bg-purple-500 text-white text-xs rounded-full py-4 px-4 mb-8 hover:bg-purple-700 focus:outline-none flex items-center justify-center">
-            {{ buttonText }}
-            <Icon name="heroicons:trash-solid" class="w-4 h-4 ml-2" />
-        </button>
-        <button v-if="!isChatOpen" @click="toggleChat"
-            class="fixed sm:bottom-8 sm:right-8 bottom-4 right-4 bg-gray-800 text-white rounded-full p-5 hover:bg-gray-600 focus:outline-none flex items-center justify-center">
-            <Icon name="heroicons:chat-bubble-oval-left-solid" class="w-8 h-8" />
-        </button>
-        <transition name="fade">
-            <div v-if="isChatOpen" class="fixed bottom-8 right-8">
-                <Chat @close="toggleChat" />
-            </div>
-        </transition>
+    <div class="min-h-screen flex flex-col bg-gray-100 relative">
+        <div class="absolute top-4 left-4 sm:top-8 sm:left-8 flex items-center">
+            <img src="/logo.svg" alt="Sibyllium" class="w-7 mr-4">
+            <span class="text-lg font-extralight"
+                style="font-family: 'Questrial', sans-serif; letter-spacing: 0.3em; font-weight: 100;">Sibyllium</span>
+        </div>
+        <div class="flex-grow flex flex-col items-center justify-center">
+            <h1 class="text-5xl font-bold mb-4 text-center">Predict Financial Markets with AI</h1>
+            <p class="text-base text-gray-500 font-light mb-8 text-center max-w-lg">Leverage advanced AI technology to
+                forecast stock prices and currency exchange rates with unparalleled accuracy.</p>
+            <!-- New Clear Local Storage Button -->
+            <button @click="clearLocalStorage"
+                class="bg-[rgb(244,214,89)] text-gray-900 text-xs rounded-full py-4 px-4 mb-8 hover:bg-yellow-500 focus:outline-none flex items-center justify-center">
+                {{ buttonText }}
+                <Icon name="heroicons:trash-solid" class="w-4 h-4 ml-2" />
+            </button>
+            <button v-if="!isChatOpen" @click="toggleChat"
+                class="fixed sm:bottom-8 sm:right-8 bottom-4 right-4 bg-[rgb(244,214,89,1)]  text-gray-900 rounded-full p-5 hover:bg-yellow-500 focus:outline-none flex items-center justify-center">
+                <Icon name="heroicons:chat-bubble-oval-left-solid" class="w-8 h-8" />
+            </button>
+            <transition name="fade">
+                <div v-if="isChatOpen" class="fixed bottom-8 right-8">
+                    <Chat @close="toggleChat" />
+                </div>
+            </transition>
+        </div>
     </div>
 </template>
 
@@ -26,7 +33,7 @@ import { ref, nextTick } from 'vue';
 import Chat from '@/components/Chat.vue';
 
 useHead({
-    title: 'AI Predictor',
+    title: 'Sibyllium',
 });
 
 const messages = ref([]);

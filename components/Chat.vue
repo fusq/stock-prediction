@@ -3,10 +3,11 @@
         <div
             class="fixed md:relative inset-0 md:w-[500px] md:h-[800px] bg-white rounded-lg shadow-md flex flex-col text-base md:text-sm border border-gray-200">
             <!-- Chat Header -->
-            <div class="flex items-center justify-between p-4 border-b border-gray-200">
-                <h2 class="text-lg font-bold text-gray-800">Chat IA <span class="text-purple-700">Predictor</span>
+            <div class="flex items-center justify-between p-4 border-b bg-gray-900 text-white rounded-t-lg">
+                <h2 class="text-lg font-bold">Chat IA <span class="text-[#f4d659] ml-1 text-base font-extralight"
+                        style="letter-spacing: 0.2em;">Sibyllium</span>
                 </h2>
-                <button @click="$emit('close')" class="text-gray-600 hover:text-gray-800 flex items-center">
+                <button @click="$emit('close')" class="text-white hover:text-gray-400 flex items-center">
                     <Icon name="heroicons:x-mark" class="w-6 h-6" />
                 </button>
             </div>
@@ -14,8 +15,8 @@
                 <div v-for="(msg, index) in messages" :key="index"
                     :class="msg.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
                     <div :class="[
-                        'max-w-xs rounded-lg p-3',
-                        msg.role === 'user' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-800',
+                        'max-w-xs p-3',
+                        msg.role === 'user' ? 'bg-gray-800 text-white rounded-t-lg rounded-bl-lg' : 'bg-gray-100 text-gray-800 rounded-t-lg rounded-br-lg',
                         msg.blinking ? 'blinking' : ''
                     ]">
                         <span v-html="formatMessage(msg.content)"></span>
