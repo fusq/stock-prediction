@@ -1,7 +1,7 @@
 <template>
     <div>
         <div
-            class="w-[500px] h-[800px] bg-white rounded-lg shadow-lg flex flex-col text-base md:text-sm border border-gray-200">
+            class="fixed md:relative inset-0 md:w-[500px] md:h-[800px] bg-white rounded-lg shadow-lg flex flex-col text-base md:text-sm border border-gray-200">
             <!-- Chat Header -->
             <div class="flex items-center justify-between p-4 border-b border-gray-200">
                 <h2 class="text-lg font-semibold text-gray-800">Chat</h2>
