@@ -1,9 +1,8 @@
 <template>
     <div class="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-        <h1 class="text-5xl font-bold mb-4 text-center">Welcome to Our Application</h1>
-        <p class="text-lg text-gray-700 mb-8 text-center">This is a basic one-page layout that fits the screen with
-            other
-            information.</p>
+        <h1 class="text-5xl font-bold mb-4 text-center">Predict Financial Markets with AI</h1>
+        <p class="text-base text-gray-500 font-light mb-8 text-center max-w-lg">Leverage advanced AI technology to
+            forecast stock prices and currency exchange rates with unparalleled accuracy.</p>
         <!-- New Clear Local Storage Button -->
         <button @click="clearLocalStorage"
             class="bg-purple-500 text-white text-xs rounded-full py-4 px-4 mb-8 hover:bg-purple-700 focus:outline-none flex items-center justify-center">

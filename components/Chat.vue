@@ -131,7 +131,7 @@ const sendMessage = async () => {
                     messages.value.push({ role: 'assistant', content: `Erreur lors de la récupération des données boursières: ${error.message}`, timestamp: new Date().toLocaleString() });
                 }
             } else if (response.baseCurrency && response.targetCurrency) {
-                const loadingMessage = { role: 'assistant', content: `Récupération des données de change pour ${response.baseCurrency}/${response.targetCurrency}...`, blinking: true, timestamp: null };
+                const loadingMessage = { role: 'assistant', content: `Prédiction de la tendance de ${response.baseCurrency}/${response.targetCurrency}...`, blinking: true, timestamp: null };
                 messages.value.push(loadingMessage);
                 const currencyLoadingIndex = messages.value.length - 1;
 
