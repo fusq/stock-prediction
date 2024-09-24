@@ -44,7 +44,7 @@ const isChatOpen = ref(false);
 
 // Computed property to determine the icon based on button text
 const buttonIcon = computed(() => {
-    return buttonText.value === 'Success!' ? 'heroicons:check' : 'heroicons:trash-solid';
+    return buttonText.value === 'Success!' ? 'heroicons:check' : 'heroicons:arrow-path';
 });
 
 const toggleChat = () => {
