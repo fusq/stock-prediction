@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
         }
 
         // Call the Flask API with the currency data
-        const flaskResponse = await axios.post('https://pythonscripttradeprediction-pajd.vercel.app//predict', {
+        const flaskResponse = await axios.post('https://pythonscripttradeprediction-pajd.vercel.app/predict', {
             serie: ratesData,
             horizon: 10,
             output: 'TcopilValues'
