@@ -14,17 +14,21 @@
             <div class="flex-grow overflow-y-auto p-4 space-y-4" ref="messagesContainer">
                 <div v-for="(msg, index) in messages" :key="index"
                     :class="msg.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
+                    <div v-if="msg.role === 'assistant'" class="flex items-end">
+                        <img src="/sibyl3.png" alt="Sibyl Avatar" class="w-8 h-8 rounded-full mb-1 mr-2">
+                    </div>
                     <div :class="[
                         'max-w-xs p-3',
                         msg.role === 'user' ? 'bg-gray-800 text-white rounded-t-lg rounded-bl-lg' : 'bg-gray-100 text-gray-800 rounded-t-lg rounded-br-lg',
                         msg.blinking ? 'blinking' : ''
                     ]">
                         <span v-html="formatMessage(msg.content)"></span>
-                        <div v-if="msg.timestamp" class="text-gray-500 text-xs mt-1 text-right">{{ new
-                            Date(msg.timestamp).toLocaleString(undefined, {
+                        <div v-if="msg.timestamp" class="text-gray-500 text-xs mt-1 text-right">
+                            {{ new Date(msg.timestamp).toLocaleString(undefined, {
                                 year: 'numeric', month: 'numeric', day: 'numeric',
                                 hour: '2-digit', minute: '2-digit'
-                            }) }}</div>
+                            }) }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -197,6 +201,13 @@ onMounted(() => {
     const savedMessages = localStorage.getItem('chatMessages');
     if (savedMessages) {
         messages.value = JSON.parse(savedMessages);
+    } else {
+        // Add initial assistant message if no saved messages
+        messages.value.push({
+            role: 'assistant',
+            content: "Bonjour, je suis Sibyl. Demandez-moi une prédiction sur un stock ou une devise, et je vous fournirai des informations basées sur l'IA.",
+            timestamp: new Date().toISOString()
+        });
     }
     scrollToBottom();
 });
