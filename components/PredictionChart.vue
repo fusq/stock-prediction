@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full h-64 border border-gray-300 rounded-md shadow p-4 bg-gray-900">
+    <div class="w-full h-64 rounded-md shadow border border-gray-200 p-4 bg-gray-900">
         <canvas ref="chartCanvas"></canvas>
     </div>
 </template>
