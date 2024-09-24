@@ -39,7 +39,7 @@ useHead({
 });
 
 const messages = ref([]);
-const buttonText = ref('Clear History (For testing purposes)');
+const buttonText = ref('Reset History (For testing purposes)');
 const isChatOpen = ref(false);
 
 // Computed property to determine the icon based on button text
@@ -69,7 +69,7 @@ const clearLocalStorage = () => {
     buttonText.value = 'Success!';
     location.reload();
     setTimeout(() => {
-        buttonText.value = 'Clear History (For testing purposes)';
+        buttonText.value = 'Reset History (For testing purposes)';
     }, 1500); // Reset message after 1.5 seconds
 };
 </script>
